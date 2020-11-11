@@ -43,6 +43,9 @@ var FSHADER_SOURCE =
   '}\n';
 
 var g_eyeX = 6, g_eyeY = 6, g_eyeZ = 20;
+ r_object_color = 1.0
+  g_object_color = 1.0
+  b_object_color = 1.0
 function main() {
   // Retrieve <canvas> element
   var canvas = document.getElementById('webgl');
@@ -67,6 +70,7 @@ function main() {
     return;
   }
 
+
   // Set the clear color and enable the depth test
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.enable(gl.DEPTH_TEST);
@@ -86,10 +90,24 @@ function main() {
   g_light_color = (myform.g_light_color.value/255)
   b_light_color = (myform.b_light_color.value/255)
 
+ 
+
   document.getElementById("bt").onclick = function(){
     r_light_color = (myform.r_light_color.value/255)
     g_light_color = (myform.g_light_color.value/255)
     b_light_color = (myform.b_light_color.value/255)
+
+    r_background_color = (myform.r_background_color.value/255)
+    g_background_color = (myform.g_background_color.value/255)
+    b_background_color = (myform.b_background_color.value/255)
+
+    r_object_color = (myform.r_object_color.value/255)
+    g_object_color = (myform.g_object_color.value/255)
+    b_object_color = (myform.b_object_color.value/255)
+
+    initVertexBuffers(gl);
+
+    gl.clearColor(r_background_color, g_background_color, b_background_color, 1.0);
     gl.uniform3f(u_LightColor, r_light_color, g_light_color, b_light_color);
     tick()
 }
@@ -105,21 +123,29 @@ function main() {
   var mvpMatrix = new Matrix4();    // Model view projection matrix
   var normalMatrix = new Matrix4(); // Transformation matrix for normals
   var currentAngle = 0.0;
+  var stop=false;
   document.onkeydown = function(ev){ keydown(ev); };
   function keydown(ev) {
-    if(ev.keyCode == 39) { // The right arrow key was pressed
-      g_eyeX += 1;
-    } else 
-    if (ev.keyCode == 37) { // The left arrow key was pressed
-      g_eyeX -= 1;
-    }
+    // alert(ev.keyCode)
+    if(ev.keyCode == 83) { // The right arrow key was pressed
+      if(stop == false) stop = true;
+      else stop = false;
+      tick();
+    } else
     if(ev.keyCode == 38) { // The right arrow key was pressed
-      g_eyeY += 1;
+      g_eyeZ -= 1;
     } else 
     if (ev.keyCode == 40) { // The left arrow key was pressed
+      g_eyeZ += 1;
+    }
+    if(ev.keyCode == 37) { // The right arrow key was pressed
+      g_eyeY += 1;
+    } else 
+    if (ev.keyCode == 39) { // The left arrow key was pressed
       g_eyeY -= 1;
     }
      else { return; }
+    
     tick();    
 }
   
@@ -151,11 +177,15 @@ function main() {
 
     // Draw the cube
     gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
-    requestAnimationFrame(tick, canvas); // Request that the browser calls tick
+    if(stop==false){
+      requestAnimationFrame(tick, canvas); // Request that the browser calls tick
+    }
+    
   };
   tick();
   onf = document.getElementById("kiemtra")
 
+  
   onf.onchange = function(){
     if(onf.checked==true){  
       gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
@@ -166,7 +196,17 @@ function main() {
       tick();
     }
   }
-  
+  st = document.getElementById("stop")
+  st.onchange = function(){
+    if(st.checked==true){  
+      stop = true;
+      tick();
+    }
+    if(st.checked==false){
+     stop = false;
+      tick();
+    }
+  }
 
 }
 
@@ -190,13 +230,21 @@ function initVertexBuffers(gl) {
   ]);
 
   // Colors
-  var colors = new Float32Array([
-    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v1-v2-v3 front
-    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v3-v4-v5 right
-    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v5-v6-v1 up
-    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v1-v6-v7-v2 left
-    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v7-v4-v3-v2 down
-    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,　    // v4-v7-v6-v5 back
+ //  var colors = new Float32Array([
+ //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v1-v2-v3 front
+ //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v3-v4-v5 right
+ //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v5-v6-v1 up
+ //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v1-v6-v7-v2 left
+ //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v7-v4-v3-v2 down
+ //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,　    // v4-v7-v6-v5 back
+ // ]);
+   var colors = new Float32Array([
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v1-v2-v3 front
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v3-v4-v5 right
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v5-v6-v1 up
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v1-v6-v7-v2 left
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v7-v4-v3-v2 down
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,　    // v4-v7-v6-v5 back
  ]);
 
   // Normal
