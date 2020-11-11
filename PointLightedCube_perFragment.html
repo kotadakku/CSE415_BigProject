@@ -11,24 +11,65 @@
     </canvas>
     <br>
     <form name="myform">
-      <input type = "checkbox" id="kiemtra" onchange="" value="">Tắt/Bật
-      <input type = "checkbox" id="stop" onchange="" value="">Dừng/Chạy
-      <br>
-      <p>Light Color </p>
-      R: <input type="text" maxlength="3" size="3" name="r_light_color" value=255>
-      G: <input type="text" maxlength="3" size="3" name="g_light_color" value=255>
-      B: <input type="text" maxlength="3" size="3" name="b_light_color" value=255>
-      
-      <p>Background Color </p>
-      R: <input type="text" maxlength="3" size="3" name="r_background_color" value=0>
-      G: <input type="text" maxlength="3" size="3" name="g_background_color" value=0>
-      B: <input type="text" maxlength="3" size="3" name="b_background_color" value=0>
+      <table>
 
-      <p>Object Color </p>
-      R: <input type="text" maxlength="3" size="3" name="r_object_color" value=255>
-      G: <input type="text" maxlength="3" size="3" name="g_object_color" value=255>
-      B: <input type="text" maxlength="3" size="3" name="b_object_color" value=255>
-      <input type="button" value= "Submit" id="bt" Onclick= "">
+        <tr>
+          <td><input type = "checkbox" id="kiemtra" onchange="" value="">Tắt/Bật</td>
+          <td><input type = "checkbox" id="stop" onchange="" value="">Dừng/Chạy</td>
+        </tr>
+
+        <tr>
+          <td>
+            <p>Light Color </p>
+            R: <input type="range" name="" id="r_light_color" value=255 min=0 max=255><span id="r_light_color_text"></span>
+            <br>
+            G: <input type="range" name="" id="g_light_color" value=255 min=0 max=255><span id="g_light_color_text"></span>
+            <br>
+            B: <input type="range" name="" id="b_light_color" value=255 min=0 max=255><span id="b_light_color_text"></span>
+          </td>
+          <td style="padding: 20px">
+            <p>Light Location</p>
+            x: <input type="number" name="" id="x_light_location" value=0.0 max=20 min=0>
+            y: <input type="number" name="" id="y_light_location" value=0.0 max=20 min=0>
+            z: <input type="number" name="" id="z_light_location" value=3.5 max=20 min=0>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <p>Background Color </p>
+
+            R: <input type="range" name="" id="r_background_color" value=0 min=0 max=255><span id="r_background_color_text"></span>
+            <br>
+            G: <input type="range" name="" id="g_background_color" value=0 min=0 max=255><span id="g_background_color_text"></span>
+            <br>
+            B: <input type="range" name="" id="b_background_color" value=0 min=0 max=255><span id="b_background_color_text"></span>
+          </td>
+          <td>
+            <p>Object Color </p>
+            R: <input type="range" name="" id="r_object_color" value=255 min=0 max=255><span id="r_object_color_text"></span>
+            <br>
+            G: <input type="range" name="" id="g_object_color" value=255 min=0 max=255><span id="g_object_color_text"></span>
+            <br>
+            B: <input type="range" name="" id="b_object_color" value=255 min=0 max=255><span id="b_object_color_text"></span>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+              <p>Look At</p>
+              x: <input type="number" id="x_lookat" name=""value=6 max=30 min=0>
+              y: <input type="number" id="y_lookat" name=""value=6 max=30 min=0>
+              z: <input type="number" id="z_lookat" name=""value=20 max=30 min=0>
+            </td>
+        </tr>
+        <tr>
+          <td>
+            
+          </td>
+        </tr>
+        
+      </table>
       
     </form>
 

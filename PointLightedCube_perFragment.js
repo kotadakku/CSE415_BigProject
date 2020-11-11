@@ -42,18 +42,23 @@ var FSHADER_SOURCE =
   '  gl_FragColor = vec4(diffuse + ambient, v_Color.a);\n' +
   '}\n';
 
+
+var currentAngle = 0.0;
+var stop=false;
 var g_eyeX = 6, g_eyeY = 6, g_eyeZ = 20;
-r_object_color = (myform.r_object_color.value/255)
-g_object_color = (myform.g_object_color.value/255)
-b_object_color = (myform.b_object_color.value/255)
 
-r_background_color = (myform.r_background_color.value/255)
-g_background_color = (myform.g_background_color.value/255)
-b_background_color = (myform.b_background_color.value/255)
+// var r_object_color = (myform.r_object_color.value/255)
+// var g_object_color = (myform.g_object_color.value/255)
+// var b_object_color = (myform.b_object_color.value/255)
 
-r_light_color = (myform.r_light_color.value/255)
-g_light_color = (myform.g_light_color.value/255)
-b_light_color = (myform.b_light_color.value/255)
+// var r_background_color = (myform.r_background_color.value/255)
+// var g_background_color = (myform.g_background_color.value/255)
+// var b_background_color = (myform.b_background_color.value/255)
+
+// var r_light_color = (r_light_color.value/255)
+// var g_light_color = (g_light_color.value/255)
+// var b_light_color = (b_light_color.value/255)
+
 function main() {
   // Retrieve <canvas> element
   var canvas = document.getElementById('webgl');
@@ -78,9 +83,49 @@ function main() {
     return;
   }
 
+  var st = document.getElementById("stop");
+  var bt = document.getElementById("bt");
+  var onf = document.getElementById("kiemtra")
+  var x_lookat = document.getElementById("x_lookat");
+  var y_lookat = document.getElementById("y_lookat");
+  var z_lookat = document.getElementById("z_lookat");
+
+  x_light_location = document.getElementById("x_light_location")
+  y_light_location = document.getElementById("y_light_location")
+  z_light_location = document.getElementById("z_light_location")
+
+  var r_light_color = document.getElementById("r_light_color")
+  var g_light_color = document.getElementById("g_light_color")
+  var b_light_color = document.getElementById("b_light_color")
+  var r_light_color_text = document.getElementById("r_light_color_text")
+  var g_light_color_text = document.getElementById("g_light_color_text")
+  var b_light_color_text = document.getElementById("b_light_color_text")
+  r_light_color_text.innerHTML = r_light_color.value
+  g_light_color_text.innerHTML = g_light_color.value
+  b_light_color_text.innerHTML = b_light_color.value
+
+  var r_background_color = document.getElementById("r_background_color");
+  var g_background_color = document.getElementById("g_background_color");
+  var b_background_color = document.getElementById("b_background_color");
+  var r_background_color_text = document.getElementById("r_background_color_text");
+  var g_background_color_text = document.getElementById("g_background_color_text");
+  var b_background_color_text = document.getElementById("b_background_color_text");
+  r_background_color_text.innerHTML = r_background_color.value
+  g_background_color_text.innerHTML = g_background_color.value
+  b_background_color_text.innerHTML = b_background_color.value
+
+  var r_object_color = document.getElementById("r_object_color");
+  var g_object_color = document.getElementById("g_object_color");
+  var b_object_color = document.getElementById("b_object_color");
+  var r_object_color_text = document.getElementById("r_object_color_text");
+  var g_object_color_text = document.getElementById("g_object_color_text");
+  var b_object_color_text = document.getElementById("b_object_color_text");
+  r_object_color_text.innerHTML = r_object_color.value
+  g_object_color_text.innerHTML = g_object_color.value
+  b_object_color_text.innerHTML = b_object_color.value
 
   // Set the clear color and enable the depth test
-  gl.clearColor(r_background_color, g_background_color, b_background_color, 1.0);
+  gl.clearColor(r_background_color.value/255, g_background_color.value/255, b_background_color.value/255, 1.0);
   gl.enable(gl.DEPTH_TEST);
 
   // Get the storage locations of uniform variables
@@ -95,77 +140,18 @@ function main() {
     return;
   }
   
-
-  st = document.getElementById("stop")
-
-  document.getElementById("bt").onclick = function(){
-    if(onf.checked==true){  
-      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
-      tick();
-    }
-    r_light_color = (myform.r_light_color.value/255)
-    g_light_color = (myform.g_light_color.value/255)
-    b_light_color = (myform.b_light_color.value/255)
-
-    r_background_color = (myform.r_background_color.value/255)
-    g_background_color = (myform.g_background_color.value/255)
-    b_background_color = (myform.b_background_color.value/255)
-
-    r_object_color = (myform.r_object_color.value/255)
-    g_object_color = (myform.g_object_color.value/255)
-    b_object_color = (myform.b_object_color.value/255)
-
-    initVertexBuffers(gl);
-
-    gl.clearColor(r_background_color, g_background_color, b_background_color, 1.0);
-    gl.uniform3f(u_LightColor, r_light_color, g_light_color, b_light_color);
-    if(onf.checked==true){  
-      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
-      // tick();
-    }
-    tick()
-}
   
   // Set the light color (white)
-  gl.uniform3f(u_LightColor, r_light_color, g_light_color, b_light_color);
+  gl.uniform3f(u_LightColor, r_light_color.value/255, g_light_color.value/255, b_light_color.value/255);
   // Set the light direction (in the world coordinate)
-  gl.uniform3f(u_LightPosition, 0.0, 0.0, 3.5);
+  gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
   // Set the ambient light
-  gl.uniform3f(u_AmbientLight, 0.5,0.2, 0.2);
+  gl.uniform3f(u_AmbientLight, 0.2,0.2, 0.2);
 
   var modelMatrix = new Matrix4();  // Model matrix
   var mvpMatrix = new Matrix4();    // Model view projection matrix
   var normalMatrix = new Matrix4(); // Transformation matrix for normals
-  var currentAngle = 0.0;
-  var stop=false;
-  document.onkeydown = function(ev){ keydown(ev); };
-  function keydown(ev) {
-    // alert(ev.keyCode)
-    if(ev.keyCode == 187) { // The right arrow key was pressed
-      g_eyeZ -= 1;
-      if(g_eyeZ <0) g_eyeZ=0
-    } else 
-    if (ev.keyCode == 189) { // The left arrow key was pressed
-      g_eyeZ += 1;
-    }
-    if(ev.keyCode == 37) { // The right arrow key was pressed
-      g_eyeY -= 1;
-    } else 
-    if (ev.keyCode == 39) { // The left arrow key was pressed
-      g_eyeY += 1;
-    }
-
-    if(ev.keyCode == 38) { // The right arrow key was pressed
-      g_eyeY += 1;
-    } else 
-    if (ev.keyCode == 40) { // The left arrow key was pressed
-      g_eyeY -= 1;
-    }
-
-     else { return; }
-    
-    tick();    
-}
+  
   
   // Start drawing
   var tick = function() {
@@ -203,7 +189,7 @@ function main() {
     
   };
   tick();
-  onf = document.getElementById("kiemtra")
+  
 
   
   onf.onchange = function(){
@@ -212,7 +198,7 @@ function main() {
       tick();
     }
     if(onf.checked==false){
-      gl.uniform3f(u_LightColor, r_light_color, g_light_color, b_light_color);
+      gl.uniform3f(u_LightColor, r_light_color.value/255, g_light_color.value/255, b_light_color.value/255);
       tick();
     }
   }
@@ -226,6 +212,116 @@ function main() {
      stop = false;
       tick();
     }
+  }
+  x_light_location.onchange = function(){
+    gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
+    tick()
+  }
+  y_light_location.onchange = function(){
+    gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
+    tick()
+  }
+  x_light_location.onchange = function(){
+    gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
+    tick()
+  }
+  z_lookat.onchange = function(){
+    g_eyeX=x_lookat.value
+    tick();
+  }
+  y_lookat.onchange = function(){
+    g_eyeY=y_lookat.value
+    tick();
+  }
+  z_lookat.onchange = function(){
+    g_eyeZ=z_lookat.value
+    tick();
+  }
+  function changeLightColor(){
+    r_light_color_text.innerHTML = r_light_color.value
+    g_light_color_text.innerHTML = g_light_color.value
+    b_light_color_text.innerHTML = b_light_color.value
+
+    gl.uniform3f(u_LightColor, r_light_color.value/255, g_light_color.value/255, b_light_color.value/255);
+    if(onf.checked==true){  
+      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
+    }
+    tick();
+  }
+
+  function changeBackgroundColor(){
+
+    r_background_color_text.innerHTML = r_background_color.value
+    g_background_color_text.innerHTML = g_background_color.value
+    b_background_color_text.innerHTML = b_background_color.value
+
+    gl.clearColor(r_background_color.value/255, g_background_color.value/255, b_background_color.value/255, 1.0);
+    tick();
+  }
+
+  function changeObjectColor(){
+    r_object_color_text.innerHTML = r_object_color.value
+    g_object_color_text.innerHTML = g_object_color.value
+    b_object_color_text.innerHTML = b_object_color.value
+    initVertexBuffers(gl);
+  }
+
+  r_light_color.oninput = function(){
+    changeLightColor()
+  }
+  g_light_color.oninput = function(){
+    changeLightColor()
+  }
+  b_light_color.oninput = function(){
+    changeLightColor()
+  }
+
+  r_background_color.oninput = function(){
+    changeBackgroundColor()
+  }
+  g_background_color.oninput = function(){
+    changeBackgroundColor()
+  }
+  b_background_color.oninput = function(){
+    changeBackgroundColor()
+  }
+  r_object_color.oninput = function(){
+    changeObjectColor()
+  }
+  g_object_color.oninput = function(){
+    changeObjectColor()
+  }
+  b_object_color.oninput = function(){
+    changeObjectColor()
+  }
+
+  document.onkeydown = function(ev){ keydown(ev); };
+  function keydown(ev) {
+    // alert(ev.keyCode)
+    if(ev.keyCode == 187) { // The right arrow key was pressed
+      g_eyeZ -= 1;
+      if(g_eyeZ <0) g_eyeZ=0
+    } else 
+    if (ev.keyCode == 189) { // The left arrow key was pressed
+      g_eyeZ += 1;
+    }
+    if(ev.keyCode == 37) { // The right arrow key was pressed
+      g_eyeY -= 1;
+    } else 
+    if (ev.keyCode == 39) { // The left arrow key was pressed
+      g_eyeY += 1;
+    }
+
+    if(ev.keyCode == 38) { // The right arrow key was pressed
+      g_eyeY += 1;
+    } else 
+    if (ev.keyCode == 40) { // The left arrow key was pressed
+      g_eyeY -= 1;
+    }
+
+     else { return; }
+    
+    tick();    
   }
 
 }
@@ -257,14 +353,20 @@ function initVertexBuffers(gl) {
  //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v7-v4-v3-v2 down
  //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,　    // v4-v7-v6-v5 back
  // ]);
-   var colors = new Float32Array([
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v1-v2-v3 front
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v3-v4-v5 right
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v5-v6-v1 up
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v1-v6-v7-v2 left
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v7-v4-v3-v2 down
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,　    // v4-v7-v6-v5 back
- ]);
+ //   var colors = new Float32Array([
+ //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v1-v2-v3 front
+ //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v3-v4-v5 right
+ //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v5-v6-v1 up
+ //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v1-v2-v3 front
+ //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v3-v4-v5 right
+ //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,　    // v4-v7-v6-v5 back
+ // ]);
+    var colors = new Float32Array(72)
+    for(var i=0; i<72; i=i+3){
+      colors[i]=r_object_color.value/255;
+      colors[i+1]=g_object_color.value/255;
+      colors[i+2]=b_object_color.value/255;
+     }
 
   // Normal
   var normals = new Float32Array([
