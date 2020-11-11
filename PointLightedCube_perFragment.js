@@ -43,9 +43,17 @@ var FSHADER_SOURCE =
   '}\n';
 
 var g_eyeX = 6, g_eyeY = 6, g_eyeZ = 20;
- r_object_color = 1.0
-  g_object_color = 1.0
-  b_object_color = 1.0
+r_object_color = (myform.r_object_color.value/255)
+g_object_color = (myform.g_object_color.value/255)
+b_object_color = (myform.b_object_color.value/255)
+
+r_background_color = (myform.r_background_color.value/255)
+g_background_color = (myform.g_background_color.value/255)
+b_background_color = (myform.b_background_color.value/255)
+
+r_light_color = (myform.r_light_color.value/255)
+g_light_color = (myform.g_light_color.value/255)
+b_light_color = (myform.b_light_color.value/255)
 function main() {
   // Retrieve <canvas> element
   var canvas = document.getElementById('webgl');
@@ -72,7 +80,7 @@ function main() {
 
 
   // Set the clear color and enable the depth test
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(r_background_color, g_background_color, b_background_color, 1.0);
   gl.enable(gl.DEPTH_TEST);
 
   // Get the storage locations of uniform variables
@@ -86,13 +94,15 @@ function main() {
     console.log('Failed to get the storage location');
     return;
   }
-  r_light_color = (myform.r_light_color.value/255)
-  g_light_color = (myform.g_light_color.value/255)
-  b_light_color = (myform.b_light_color.value/255)
+  
 
- 
+  st = document.getElementById("stop")
 
   document.getElementById("bt").onclick = function(){
+    if(onf.checked==true){  
+      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
+      tick();
+    }
     r_light_color = (myform.r_light_color.value/255)
     g_light_color = (myform.g_light_color.value/255)
     b_light_color = (myform.b_light_color.value/255)
@@ -109,15 +119,19 @@ function main() {
 
     gl.clearColor(r_background_color, g_background_color, b_background_color, 1.0);
     gl.uniform3f(u_LightColor, r_light_color, g_light_color, b_light_color);
+    if(onf.checked==true){  
+      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
+      // tick();
+    }
     tick()
 }
   
   // Set the light color (white)
   gl.uniform3f(u_LightColor, r_light_color, g_light_color, b_light_color);
   // Set the light direction (in the world coordinate)
-  gl.uniform3f(u_LightPosition, 2.3, 4.0, 3.5);
+  gl.uniform3f(u_LightPosition, 0.0, 0.0, 3.5);
   // Set the ambient light
-  gl.uniform3f(u_AmbientLight, 0.2, 0.2, 0.2);
+  gl.uniform3f(u_AmbientLight, 0.5,0.2, 0.2);
 
   var modelMatrix = new Matrix4();  // Model matrix
   var mvpMatrix = new Matrix4();    // Model view projection matrix
@@ -127,23 +141,27 @@ function main() {
   document.onkeydown = function(ev){ keydown(ev); };
   function keydown(ev) {
     // alert(ev.keyCode)
-    if(ev.keyCode == 83) { // The right arrow key was pressed
-      if(stop == false) stop = true;
-      else stop = false;
-      tick();
-    } else
-    if(ev.keyCode == 38) { // The right arrow key was pressed
+    if(ev.keyCode == 187) { // The right arrow key was pressed
       g_eyeZ -= 1;
+      if(g_eyeZ <0) g_eyeZ=0
     } else 
-    if (ev.keyCode == 40) { // The left arrow key was pressed
+    if (ev.keyCode == 189) { // The left arrow key was pressed
       g_eyeZ += 1;
     }
     if(ev.keyCode == 37) { // The right arrow key was pressed
-      g_eyeY += 1;
+      g_eyeY -= 1;
     } else 
     if (ev.keyCode == 39) { // The left arrow key was pressed
+      g_eyeY += 1;
+    }
+
+    if(ev.keyCode == 38) { // The right arrow key was pressed
+      g_eyeY += 1;
+    } else 
+    if (ev.keyCode == 40) { // The left arrow key was pressed
       g_eyeY -= 1;
     }
+
      else { return; }
     
     tick();    
@@ -153,16 +171,18 @@ function main() {
   var tick = function() {
     currentAngle = animate(currentAngle);  // Update the rotation angle
     
-    modelMatrix = setModelMatrix(modelMatrix, currentAngle)
     // Calculate the model matrix
-    modelMatrix.setRotate(currentAngle, 0, 1, 0); // Rotate around the y-axis
+    if(stop==false){
+      modelMatrix.setRotate(currentAngle, 0, 1, 0); // Rotate around the y-axis
+    } 
+
     // Calculate the view projection matrix
-    // viewMatrix.setLookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
     mvpMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
     mvpMatrix.lookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
     mvpMatrix.multiply(modelMatrix);
     // Calculate the matrix to transform the normal based on the model matrix
-    normalMatrix = setNormalMatrix(normalMatrix, modelMatrix)
+    normalMatrix.setInverseOf(modelMatrix);
+    normalMatrix.transpose();
     
     // Pass the model matrix to u_ModelMatrix
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
@@ -196,7 +216,7 @@ function main() {
       tick();
     }
   }
-  st = document.getElementById("stop")
+  
   st.onchange = function(){
     if(st.checked==true){  
       stop = true;
@@ -229,7 +249,6 @@ function initVertexBuffers(gl) {
      2.0,-2.0,-2.0,  -2.0,-2.0,-2.0,  -2.0, 2.0,-2.0,   2.0, 2.0,-2.0  // v4-v7-v6-v5 back
   ]);
 
-  // Colors
  //  var colors = new Float32Array([
  //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v1-v2-v3 front
  //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v3-v4-v5 right
@@ -239,12 +258,12 @@ function initVertexBuffers(gl) {
  //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,　    // v4-v7-v6-v5 back
  // ]);
    var colors = new Float32Array([
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v1-v2-v3 front
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v3-v4-v5 right
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v5-v6-v1 up
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v1-v6-v7-v2 left
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v7-v4-v3-v2 down
-    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,　    // v4-v7-v6-v5 back
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v1-v2-v3 front
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v3-v4-v5 right
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v0-v5-v6-v1 up
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v1-v6-v7-v2 left
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,     // v7-v4-v3-v2 down
+    r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,  r_object_color, g_object_color, b_object_color,　    // v4-v7-v6-v5 back
  ]);
 
   // Normal
@@ -309,17 +328,6 @@ function initArrayBuffer(gl, attribute, data, num) {
 
   return true;
 }
-
-function setModelMatrix(modelMatrix, currentAngle){
-  modelMatrix.setRotate(currentAngle, 0, 1, 0);
-  return modelMatrix
-}
-function setNormalMatrix(normalMatrix, modelMatrix){
-    normalMatrix.setInverseOf(modelMatrix);
-    normalMatrix.transpose();
-    return normalMatrix
-}
-
 var ANGLE_STEP = 30.0;
 // Last time that this function was called
 var g_last = Date.now();
