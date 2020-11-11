@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Point lighted cube (Per fragment)</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <br>
+    <form name="myform">
+      <input type = "checkbox" id="kiemtra" onchange="" value="">Tắt/Bật
+      <br>
+      <p>Light Color </p>
+      R: <input type="text" maxlength="3" size="3" name="r_light_color" value=255>
+      G: <input type="text" maxlength="3" size="3" name="g_light_color" value=255>
+      B: <input type="text" maxlength="3" size="3" name="b_light_color" value=255>
+      <input type="button" value= "Submit" id="bt" Onclick= "">
+      
+    </form>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix.js"></script>
+    <script src="PointLightedCube_perFragment.js"></script>
+  </body>
+</html>
