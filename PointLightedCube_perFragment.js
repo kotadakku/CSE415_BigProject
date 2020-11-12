@@ -45,19 +45,6 @@ var FSHADER_SOURCE =
 
 var currentAngle = 0.0;
 var stop=false;
-var g_eyeX = 6, g_eyeY = 6, g_eyeZ = 20;
-
-// var r_object_color = (myform.r_object_color.value/255)
-// var g_object_color = (myform.g_object_color.value/255)
-// var b_object_color = (myform.b_object_color.value/255)
-
-// var r_background_color = (myform.r_background_color.value/255)
-// var g_background_color = (myform.g_background_color.value/255)
-// var b_background_color = (myform.b_background_color.value/255)
-
-// var r_light_color = (r_light_color.value/255)
-// var g_light_color = (g_light_color.value/255)
-// var b_light_color = (b_light_color.value/255)
 
 function main() {
   // Retrieve <canvas> element
@@ -86,6 +73,7 @@ function main() {
   var st = document.getElementById("stop");
   var bt = document.getElementById("bt");
   var onf = document.getElementById("kiemtra")
+  var v_spin = document.getElementById("v_spin")
   var x_lookat = document.getElementById("x_lookat");
   var y_lookat = document.getElementById("y_lookat");
   var z_lookat = document.getElementById("z_lookat");
@@ -124,8 +112,33 @@ function main() {
   g_object_color_text.innerHTML = g_object_color.value
   b_object_color_text.innerHTML = b_object_color.value
 
+  r_ambient_color = document.getElementById("r_ambient_color");
+  g_ambient_color = document.getElementById("g_ambient_color");
+  b_ambient_color = document.getElementById("b_ambient_color");
+  r_ambient_color_text = document.getElementById("r_ambient_color_text");
+  g_ambient_color_text = document.getElementById("g_ambient_color_text");
+  b_ambient_color_text = document.getElementById("b_ambient_color_text");
+  r_ambient_color_text.innerHTML = r_ambient_color.value
+  g_ambient_color_text.innerHTML = g_ambient_color.value
+  b_ambient_color_text.innerHTML = b_ambient_color.value
+
+
+  var r_lcolor=r_light_color.value/255;
+  var g_lcolor=g_light_color.value/255; 
+  var b_lcolor=b_light_color.value/255;
+  var r_bcolor=r_background_color.value/255;
+  var g_bcolor=g_background_color.value/255;
+  var b_bcolor=b_background_color.value/255;
+  var r_acolor=r_ambient_color.value/255;
+  var g_acolor=g_ambient_color.value/255;
+  var b_acolor=b_ambient_color.value/255;
+  var g_eyeX = x_lookat.value;
+  var g_eyeY = y_lookat.value; 
+  var g_eyeZ = z_lookat.value;
+  ANGLE_STEP=v_spin.value
+
   // Set the clear color and enable the depth test
-  gl.clearColor(r_background_color.value/255, g_background_color.value/255, b_background_color.value/255, 1.0);
+  gl.clearColor(r_bcolor, g_bcolor, b_bcolor, 1.0);
   gl.enable(gl.DEPTH_TEST);
 
   // Get the storage locations of uniform variables
@@ -140,13 +153,6 @@ function main() {
     return;
   }
   
-  
-  // Set the light color (white)
-  gl.uniform3f(u_LightColor, r_light_color.value/255, g_light_color.value/255, b_light_color.value/255);
-  // Set the light direction (in the world coordinate)
-  gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
-  // Set the ambient light
-  gl.uniform3f(u_AmbientLight, 0.2,0.2, 0.2);
 
   var modelMatrix = new Matrix4();  // Model matrix
   var mvpMatrix = new Matrix4();    // Model view projection matrix
@@ -155,11 +161,18 @@ function main() {
   
   // Start drawing
   var tick = function() {
+     gl.clearColor(r_bcolor, g_bcolor, b_bcolor, 1.0);
+    // Set the light color (white)
+    gl.uniform3f(u_LightColor, r_lcolor, g_lcolor, b_lcolor);
+    // Set the light direction (in the world coordinate)
+    gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
+    // Set the ambient light
+    gl.uniform3f(u_AmbientLight, r_acolor, g_acolor, b_acolor);
     currentAngle = animate(currentAngle);  // Update the rotation angle
     
     // Calculate the model matrix
     if(stop==false){
-      modelMatrix.setRotate(currentAngle, 0, 1, 0); // Rotate around the y-axis
+      modelMatrix.setRotate(currentAngle, 0, 1, 1); // Rotate around the y-axis
     } 
 
     // Calculate the view projection matrix
@@ -194,11 +207,17 @@ function main() {
   
   onf.onchange = function(){
     if(onf.checked==true){  
-      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
+      if(onf.checked==true){  
+      r_lcolor=0.0;
+      g_lcolor=0.0; 
+      b_lcolor=0.0;
+    }
       tick();
     }
     if(onf.checked==false){
-      gl.uniform3f(u_LightColor, r_light_color.value/255, g_light_color.value/255, b_light_color.value/255);
+      r_lcolor=r_light_color.value/255;
+      g_lcolor=g_light_color.value/255; 
+      b_lcolor=b_light_color.value/255;
       tick();
     }
   }
@@ -225,7 +244,7 @@ function main() {
     gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
     tick()
   }
-  z_lookat.onchange = function(){
+  x_lookat.onchange = function(){
     g_eyeX=x_lookat.value
     tick();
   }
@@ -241,10 +260,14 @@ function main() {
     r_light_color_text.innerHTML = r_light_color.value
     g_light_color_text.innerHTML = g_light_color.value
     b_light_color_text.innerHTML = b_light_color.value
+    r_lcolor=r_light_color.value/255;
+    g_lcolor=g_light_color.value/255; 
+    b_lcolor=b_light_color.value/255;
 
-    gl.uniform3f(u_LightColor, r_light_color.value/255, g_light_color.value/255, b_light_color.value/255);
     if(onf.checked==true){  
-      gl.uniform3f(u_LightColor, 0.0, 0.0, 0.0);
+      r_lcolor=0.0;
+      g_lcolor=0.0; 
+      b_lcolor=0.0;
     }
     tick();
   }
@@ -255,7 +278,10 @@ function main() {
     g_background_color_text.innerHTML = g_background_color.value
     b_background_color_text.innerHTML = b_background_color.value
 
-    gl.clearColor(r_background_color.value/255, g_background_color.value/255, b_background_color.value/255, 1.0);
+    r_bcolor=r_background_color.value/255;
+    g_bcolor=g_background_color.value/255;
+    b_bcolor=b_background_color.value/255;
+  
     tick();
   }
 
@@ -264,6 +290,15 @@ function main() {
     g_object_color_text.innerHTML = g_object_color.value
     b_object_color_text.innerHTML = b_object_color.value
     initVertexBuffers(gl);
+  }
+  function changeAmbientColor(){
+    r_ambient_color_text.innerHTML = r_ambient_color.value
+    g_ambient_color_text.innerHTML = g_ambient_color.value
+    b_ambient_color_text.innerHTML = b_ambient_color.value
+    r_acolor=r_ambient_color.value/255;
+    g_acolor=g_ambient_color.value/255;
+    b_acolor=b_ambient_color.value/255;
+    tick();
   }
 
   r_light_color.oninput = function(){
@@ -295,34 +330,48 @@ function main() {
     changeObjectColor()
   }
 
-  document.onkeydown = function(ev){ keydown(ev); };
-  function keydown(ev) {
-    // alert(ev.keyCode)
-    if(ev.keyCode == 187) { // The right arrow key was pressed
-      g_eyeZ -= 1;
-      if(g_eyeZ <0) g_eyeZ=0
-    } else 
-    if (ev.keyCode == 189) { // The left arrow key was pressed
-      g_eyeZ += 1;
-    }
-    if(ev.keyCode == 37) { // The right arrow key was pressed
-      g_eyeY -= 1;
-    } else 
-    if (ev.keyCode == 39) { // The left arrow key was pressed
-      g_eyeY += 1;
-    }
-
-    if(ev.keyCode == 38) { // The right arrow key was pressed
-      g_eyeY += 1;
-    } else 
-    if (ev.keyCode == 40) { // The left arrow key was pressed
-      g_eyeY -= 1;
-    }
-
-     else { return; }
-    
-    tick();    
+  r_ambient_color.oninput = function(){
+    changeAmbientColor();
   }
+  g_ambient_color.oninput = function(){
+    changeAmbientColor();
+  }
+  b_ambient_color.oninput = function(){
+    changeAmbientColor();
+  }
+  v_spin.oninput = function(){
+    ANGLE_STEP=v_spin.value
+    tick();
+  }
+
+  // document.onkeydown = function(ev){ keydown(ev); };
+  // function keydown(ev) {
+  //   // alert(ev.keyCode)
+  //   if(ev.keyCode == 187) { // The right arrow key was pressed
+  //     g_eyeZ -= 1;
+  //     if(g_eyeZ <0) g_eyeZ=0
+  //   } else 
+  //   if (ev.keyCode == 189) { // The left arrow key was pressed
+  //     g_eyeZ += 1;
+  //   }
+  //   if(ev.keyCode == 37) { // The right arrow key was pressed
+  //     g_eyeY -= 1;
+  //   } else 
+  //   if (ev.keyCode == 39) { // The left arrow key was pressed
+  //     g_eyeY += 1;
+  //   }
+
+  //   if(ev.keyCode == 38) { // The right arrow key was pressed
+  //     g_eyeY += 1;
+  //   } else 
+  //   if (ev.keyCode == 40) { // The left arrow key was pressed
+  //     g_eyeY -= 1;
+  //   }
+
+  //    else { return; }
+    
+  //   tick();    
+  // }
 
 }
 

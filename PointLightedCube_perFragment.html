@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Point lighted cube (Per fragment)</title>
+    <title>Bài tập lớn</title>
   </head>
 
   <body onload="main()">
@@ -20,7 +20,7 @@
 
         <tr>
           <td>
-            <p>Light Color </p>
+            <p>Màu ánh sáng</p>
             R: <input type="range" name="" id="r_light_color" value=255 min=0 max=255><span id="r_light_color_text"></span>
             <br>
             G: <input type="range" name="" id="g_light_color" value=255 min=0 max=255><span id="g_light_color_text"></span>
@@ -28,7 +28,7 @@
             B: <input type="range" name="" id="b_light_color" value=255 min=0 max=255><span id="b_light_color_text"></span>
           </td>
           <td style="padding: 20px">
-            <p>Light Location</p>
+            <p>Vị trí ánh sáng</p>
             x: <input type="number" name="" id="x_light_location" value=0.0 max=20 min=0>
             y: <input type="number" name="" id="y_light_location" value=0.0 max=20 min=0>
             z: <input type="number" name="" id="z_light_location" value=3.5 max=20 min=0>
@@ -37,7 +37,7 @@
 
         <tr>
           <td>
-            <p>Background Color </p>
+            <p>Màu nền</p>
 
             R: <input type="range" name="" id="r_background_color" value=0 min=0 max=255><span id="r_background_color_text"></span>
             <br>
@@ -46,7 +46,7 @@
             B: <input type="range" name="" id="b_background_color" value=0 min=0 max=255><span id="b_background_color_text"></span>
           </td>
           <td>
-            <p>Object Color </p>
+            <p>Màu hình lập phương</p>
             R: <input type="range" name="" id="r_object_color" value=255 min=0 max=255><span id="r_object_color_text"></span>
             <br>
             G: <input type="range" name="" id="g_object_color" value=255 min=0 max=255><span id="g_object_color_text"></span>
@@ -54,10 +54,20 @@
             B: <input type="range" name="" id="b_object_color" value=255 min=0 max=255><span id="b_object_color_text"></span>
           </td>
         </tr>
+        <tr>
+          <td>
+              <p>Màu phản chiếu</p>
+            R: <input type="range" name="" id="r_ambient_color" value=51 min=0 max=255><span id="r_ambient_color_text"></span>
+            <br>
+            G: <input type="range" name="" id="g_ambient_color" value=51 min=0 max=255><span id="g_ambient_color_text"></span>
+            <br>
+            B: <input type="range" name="" id="b_ambient_color" value=51 min=0 max=255><span id="b_ambient_color_text"></span>
+          </td>
+        </tr>
 
         <tr>
           <td>
-              <p>Look At</p>
+              <p>Vị trí nhìn</p>
               x: <input type="number" id="x_lookat" name=""value=6 max=30 min=0>
               y: <input type="number" id="y_lookat" name=""value=6 max=30 min=0>
               z: <input type="number" id="z_lookat" name=""value=20 max=30 min=0>
@@ -68,15 +78,21 @@
             
           </td>
         </tr>
+        <tr>
+          <td>
+            <p>Tốc độ quay</p>
+              <input type="range" id="v_spin" name=""value=45 max=180 min=0 />
+          </td>
+        </tr>
         
       </table>
       
     </form>
-
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
     <script src="../lib/cuon-utils.js"></script>
     <script src="../lib/cuon-matrix.js"></script>
     <script src="PointLightedCube_perFragment.js"></script>
+
   </body>
 </html>
