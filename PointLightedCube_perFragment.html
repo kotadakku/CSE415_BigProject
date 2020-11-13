@@ -6,20 +6,35 @@
   </head>
 
   <body onload="main()">
-    <canvas id="webgl" width="400" height="400">
+    <center>
+      <canvas id="webgl" width="400" height="400">
     Please use a browser that supports "canvas"
     </canvas>
+    </center>
+    
     <br>
     <form name="myform">
-      <table>
+      <table style="border: 1px solid black; background-color: #eee" align="center">
 
-        <tr>
-          <td><input type = "checkbox" id="kiemtra" onchange="" value="">Tắt/Bật</td>
+        <tr >
+          <td ><input type = "checkbox" id="kiemtra" onchange="" value="">Tắt/Bật</td>
           <td><input type = "checkbox" id="stop" onchange="" value="">Dừng/Chạy</td>
         </tr>
-
         <tr>
           <td>
+            <p>Tốc độ quay</p>
+              <input type="range" id="v_spin" name=""value=45 max=180 min=0 />
+          </td>
+          <td>
+            <p>Trục quay</p>
+            x: <input type="number" name="" id="x_spin" value=0.0 max=10.0 min=-10.0>
+            y: <input type="number" name="" id="y_spin" value=0.0 max=10.0 min=-10.0>
+            z: <input type="number" name="" id="z_spin" value=1.0 max=10.0 min=-10.0>
+          </td>
+        </tr>
+
+        <tr >
+          <td >
             <p>Màu ánh sáng</p>
             R: <input type="range" name="" id="r_light_color" value=255 min=0 max=255><span id="r_light_color_text"></span>
             <br>
@@ -76,12 +91,6 @@
         <tr>
           <td>
             
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <p>Tốc độ quay</p>
-              <input type="range" id="v_spin" name=""value=45 max=180 min=0 />
           </td>
         </tr>
         

@@ -45,6 +45,9 @@ var FSHADER_SOURCE =
 
 var currentAngle = 0.0;
 var stop=false;
+var x_spin=0.0;
+var y_spin=0.0;
+var z_spin=1.0;
 
 function main() {
   // Retrieve <canvas> element
@@ -77,6 +80,10 @@ function main() {
   var x_lookat = document.getElementById("x_lookat");
   var y_lookat = document.getElementById("y_lookat");
   var z_lookat = document.getElementById("z_lookat");
+
+  var x_sp = document.getElementById("x_spin")
+  var y_sp = document.getElementById("y_spin")
+  var z_sp = document.getElementById("z_spin")
 
   x_light_location = document.getElementById("x_light_location")
   y_light_location = document.getElementById("y_light_location")
@@ -122,6 +129,10 @@ function main() {
   g_ambient_color_text.innerHTML = g_ambient_color.value
   b_ambient_color_text.innerHTML = b_ambient_color.value
 
+  
+  x_spin = x_sp.value
+  y_spin = y_sp.value
+  z_spin = z_sp.value
 
   var r_lcolor=r_light_color.value/255;
   var g_lcolor=g_light_color.value/255; 
@@ -161,7 +172,7 @@ function main() {
   
   // Start drawing
   var tick = function() {
-     gl.clearColor(r_bcolor, g_bcolor, b_bcolor, 1.0);
+    gl.clearColor(r_bcolor, g_bcolor, b_bcolor, 1.0);
     // Set the light color (white)
     gl.uniform3f(u_LightColor, r_lcolor, g_lcolor, b_lcolor);
     // Set the light direction (in the world coordinate)
@@ -172,9 +183,8 @@ function main() {
     
     // Calculate the model matrix
     if(stop==false){
-      modelMatrix.setRotate(currentAngle, 0, 1, 1); // Rotate around the y-axis
-    } 
-
+      modelMatrix.setRotate(currentAngle, x_spin, y_spin, z_spin); // Rotate around the y-axis
+    }
     // Calculate the view projection matrix
     mvpMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
     mvpMatrix.lookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
@@ -255,6 +265,17 @@ function main() {
   z_lookat.onchange = function(){
     g_eyeZ=z_lookat.value
     tick();
+  }
+
+  x_sp.onchange = function(){
+    x_spin = x_sp.value
+  }
+
+  y_sp.onchange = function(){
+    y_spin = y_sp.value
+  }
+  z_sp.onchange = function(){
+    z_spin = z_sp.value
   }
   function changeLightColor(){
     r_light_color_text.innerHTML = r_light_color.value
@@ -343,36 +364,6 @@ function main() {
     ANGLE_STEP=v_spin.value
     tick();
   }
-
-  // document.onkeydown = function(ev){ keydown(ev); };
-  // function keydown(ev) {
-  //   // alert(ev.keyCode)
-  //   if(ev.keyCode == 187) { // The right arrow key was pressed
-  //     g_eyeZ -= 1;
-  //     if(g_eyeZ <0) g_eyeZ=0
-  //   } else 
-  //   if (ev.keyCode == 189) { // The left arrow key was pressed
-  //     g_eyeZ += 1;
-  //   }
-  //   if(ev.keyCode == 37) { // The right arrow key was pressed
-  //     g_eyeY -= 1;
-  //   } else 
-  //   if (ev.keyCode == 39) { // The left arrow key was pressed
-  //     g_eyeY += 1;
-  //   }
-
-  //   if(ev.keyCode == 38) { // The right arrow key was pressed
-  //     g_eyeY += 1;
-  //   } else 
-  //   if (ev.keyCode == 40) { // The left arrow key was pressed
-  //     g_eyeY -= 1;
-  //   }
-
-  //    else { return; }
-    
-  //   tick();    
-  // }
-
 }
 
 function initVertexBuffers(gl) {
@@ -394,22 +385,6 @@ function initVertexBuffers(gl) {
      2.0,-2.0,-2.0,  -2.0,-2.0,-2.0,  -2.0, 2.0,-2.0,   2.0, 2.0,-2.0  // v4-v7-v6-v5 back
   ]);
 
- //  var colors = new Float32Array([
- //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v1-v2-v3 front
- //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v3-v4-v5 right
- //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v5-v6-v1 up
- //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v1-v6-v7-v2 left
- //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,     // v7-v4-v3-v2 down
- //    1, 1, 1,  1, 1, 1,   1, 1, 1,  1, 1, 1,　    // v4-v7-v6-v5 back
- // ]);
- //   var colors = new Float32Array([
- //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v1-v2-v3 front
- //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v3-v4-v5 right
- //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v5-v6-v1 up
- //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v1-v2-v3 front
- //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,     // v0-v3-v4-v5 right
- //    r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,  r_object_color.value/255, g_object_color.value/255, b_object_color.value/255,　    // v4-v7-v6-v5 back
- // ]);
     var colors = new Float32Array(72)
     for(var i=0; i<72; i=i+3){
       colors[i]=r_object_color.value/255;
