@@ -1,10 +1,10 @@
 // PointLightedCube_perFragment.js (c) 2012 matsuda
-// Vertex shader program
+//Chương trình Vertex shader 
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
   'attribute vec4 a_Color;\n' +
-  'attribute vec4 a_Normal;\n' +
-  'uniform mat4 u_MvpMatrix;\n' +
+  'attribute vec4 a_Normal;\n' +     //Pháp tuyến
+  'uniform mat4 u_MvpMatrix;\n' +    
   'uniform mat4 u_ModelMatrix;\n' +    // Model matrix
   'uniform mat4 u_NormalMatrix;\n' +   // Transformation matrix of the normal
   'varying vec4 v_Color;\n' +
@@ -12,83 +12,85 @@ var VSHADER_SOURCE =
   'varying vec3 v_Position;\n' +
   'void main() {\n' +
   '  gl_Position = u_MvpMatrix * a_Position;\n' +
-     // Calculate the vertex position in the world coordinate
+     // Tính vị trí đỉnh theo tọa độ thực
   '  v_Position = vec3(u_ModelMatrix * a_Position);\n' +
   '  v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n' +
   '  v_Color = a_Color;\n' + 
   '}\n';
 
-// Fragment shader program
+// Chương trình Fragment shader
 var FSHADER_SOURCE =
   '#ifdef GL_ES\n' +
   'precision mediump float;\n' +
   '#endif\n' +
-  'uniform vec3 u_LightColor;\n' +     // Light color
-  'uniform vec3 u_LightPosition;\n' +  // Position of the light source
-  'uniform vec3 u_AmbientLight;\n' +   // Ambient light color
+  'uniform vec3 u_LightColor;\n' +     // Màu ánh sáng
+  'uniform vec3 u_LightPosition;\n' +  // Tọa độ thực, chuẩn hóa
+  'uniform vec3 u_AmbientLight;\n' +   // Màu ánh sáng Ambient
   'varying vec3 v_Normal;\n' +
   'varying vec3 v_Position;\n' +
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
-     // Normalize the normal because it is interpolated and not 1.0 in length any more
+     // Chuẩn hóa pháp tuyến vì nó được nội suy và khác 1.0
   '  vec3 normal = normalize(v_Normal);\n' +
-     // Calculate the light direction and make its length 1.
+     // Chuẩn hóa ánh sáng và biến đổi nó có độ dài là 1.0
   '  vec3 lightDirection = normalize(u_LightPosition - v_Position);\n' +
-     // The dot product of the light direction and the orientation of a surface (the normal)
+     // Tích vô hướng của ánh sáng và pháp tuyến cosθ = 〈light direction 〉×〈orientation of a surface 〉
   '  float nDotL = max(dot(lightDirection, normal), 0.0);\n' +
-     // Calculate the final color from diffuse reflection and ambient reflection
-  '  vec3 diffuse = u_LightColor * v_Color.rgb * nDotL;\n' +
-  '  vec3 ambient = u_AmbientLight * v_Color.rgb;\n' +
+     // Tính màu cuối từ phản xạ khuếch tán và xung quanh
+  '  vec3 diffuse = u_LightColor * v_Color.rgb * nDotL;\n' +  //Tính màu cuối từ phản xạ khuếch tán 〈surface color by diffuse reflection 〉=〈 light color〉 × 〈 base color of surface〉 ×cosθ 
+  '  vec3 ambient = u_AmbientLight * v_Color.rgb;\n' +    //Tính màu cuối từ phản xạ xung quanh
   '  gl_FragColor = vec4(diffuse + ambient, v_Color.a);\n' +
   '}\n';
 
 
-var currentAngle = 0.0;
-var stop=false;
+var currentAngle = 0.0;   //Góc quay hiện tại
+var stop=false;   //Dừng hay quay
+// Trục quay (0,0,0)->(x_spin, y_spin, z_spin)
 var x_spin=0.0;
 var y_spin=0.0;
 var z_spin=1.0;
 
 function main() {
-  // Retrieve <canvas> element
+  // Lấy phần tử <canvas>
   var canvas = document.getElementById('webgl');
 
-  // Get the rendering context for WebGL
+  // Lấy ngữ cảnh dựng cho cho WebGL
   var gl = getWebGLContext(canvas);
   if (!gl) {
     console.log('Failed to get the rendering context for WebGL');
     return;
   }
 
-  // Initialize shaders
+  // Khởi tạo các shaders
   if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
     console.log('Failed to intialize shaders.');
     return;
   }
 
-  // 
+  // Khởi tạo bộ đệm đối tượng
   var n = initVertexBuffers(gl);
   if (n < 0) {
     console.log('Failed to set the vertex information');
     return;
   }
-
-  var st = document.getElementById("stop");
-  var bt = document.getElementById("bt");
-  var onf = document.getElementById("kiemtra")
-  var v_spin = document.getElementById("v_spin")
+  // Lấy phần tử từ HTML
+  
+  var st = document.getElementById("stop");   // Lấy checkbox dừng/quay
+  var onf = document.getElementById("onf")    // Lấy checkbox tắt/bật
+  var v_spin = document.getElementById("v_spin")    // Lấy input tốc độ quay
+  // Lấy input vị trí nhìn
   var x_lookat = document.getElementById("x_lookat");
   var y_lookat = document.getElementById("y_lookat");
   var z_lookat = document.getElementById("z_lookat");
-
+  // Lấy input tọa độ trục quay
   var x_sp = document.getElementById("x_spin")
   var y_sp = document.getElementById("y_spin")
   var z_sp = document.getElementById("z_spin")
-
+  //Gán input vị trí ban đầu 
   x_light_location = document.getElementById("x_light_location")
   y_light_location = document.getElementById("y_light_location")
   z_light_location = document.getElementById("z_light_location")
-
+  // Lấy input- màu ánh sáng
   var r_light_color = document.getElementById("r_light_color")
   var g_light_color = document.getElementById("g_light_color")
   var b_light_color = document.getElementById("b_light_color")
@@ -98,7 +100,7 @@ function main() {
   r_light_color_text.innerHTML = r_light_color.value
   g_light_color_text.innerHTML = g_light_color.value
   b_light_color_text.innerHTML = b_light_color.value
-
+  // Lấy input màu nền
   var r_background_color = document.getElementById("r_background_color");
   var g_background_color = document.getElementById("g_background_color");
   var b_background_color = document.getElementById("b_background_color");
@@ -108,7 +110,7 @@ function main() {
   r_background_color_text.innerHTML = r_background_color.value
   g_background_color_text.innerHTML = g_background_color.value
   b_background_color_text.innerHTML = b_background_color.value
-
+  // Lấy input màu hình lập phương
   var r_object_color = document.getElementById("r_object_color");
   var g_object_color = document.getElementById("g_object_color");
   var b_object_color = document.getElementById("b_object_color");
@@ -118,7 +120,7 @@ function main() {
   r_object_color_text.innerHTML = r_object_color.value
   g_object_color_text.innerHTML = g_object_color.value
   b_object_color_text.innerHTML = b_object_color.value
-
+  //Lấy input màu phản chiếu
   r_ambient_color = document.getElementById("r_ambient_color");
   g_ambient_color = document.getElementById("g_ambient_color");
   b_ambient_color = document.getElementById("b_ambient_color");
@@ -129,30 +131,34 @@ function main() {
   g_ambient_color_text.innerHTML = g_ambient_color.value
   b_ambient_color_text.innerHTML = b_ambient_color.value
 
-  
+  //Gán màu ban đầu cho tọa độ trục quay OA -> A(x_spin,y_spin, z_spin)
   x_spin = x_sp.value
   y_spin = y_sp.value
   z_spin = z_sp.value
-
+  // Gán giá trị ban đầu cho màu ánh sáng, chuyển từ (0,255)->(0,1)
   var r_lcolor=r_light_color.value/255;
   var g_lcolor=g_light_color.value/255; 
   var b_lcolor=b_light_color.value/255;
+  // Gán giá trị ban đầu cho màu nền, chuyển từ (0,255)->(0,1)
   var r_bcolor=r_background_color.value/255;
   var g_bcolor=g_background_color.value/255;
   var b_bcolor=b_background_color.value/255;
+  // Gán giá trị ban đầu cho màu phản chiếu, chuyển từ (0,255)->(0,1)
   var r_acolor=r_ambient_color.value/255;
   var g_acolor=g_ambient_color.value/255;
   var b_acolor=b_ambient_color.value/255;
+  // Gán giá trị ban đầu cho vị trí nhìn từ A(g_eyeX, g_eyeY, g_eyeZ)->O
   var g_eyeX = x_lookat.value;
   var g_eyeY = y_lookat.value; 
   var g_eyeZ = z_lookat.value;
+  // Góc quay (tốc độ quay)
   ANGLE_STEP=v_spin.value
 
-  // Set the clear color and enable the depth test
+  // Gán màu cho clearColor và kích hoạt hàm khủ mặt khuất
   gl.clearColor(r_bcolor, g_bcolor, b_bcolor, 1.0);
   gl.enable(gl.DEPTH_TEST);
 
-  // Get the storage locations of uniform variables
+  // Lấy vị trí lưu trữ của các biến đồng nhất
   var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
   var u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
@@ -170,81 +176,83 @@ function main() {
   var normalMatrix = new Matrix4(); // Transformation matrix for normals
   
   
-  // Start drawing
+  // Bắt đầu vẽ
   var tick = function() {
+    // Thay đổi màu nền
     gl.clearColor(r_bcolor, g_bcolor, b_bcolor, 1.0);
-    // Set the light color (white)
+    // Gán giá trị cho light color
     gl.uniform3f(u_LightColor, r_lcolor, g_lcolor, b_lcolor);
-    // Set the light direction (in the world coordinate)
+    // Gán giá trị cho light direction
     gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
-    // Set the ambient light
+    // Gián giá trị cho ánh sáng khuêch tán
     gl.uniform3f(u_AmbientLight, r_acolor, g_acolor, b_acolor);
-    currentAngle = animate(currentAngle);  // Update the rotation angle
+    currentAngle = animate(currentAngle);  // Cập nhật lại goc quay
     
-    // Calculate the model matrix
+    // Tính model matrix
     if(stop==false){
-      modelMatrix.setRotate(currentAngle, x_spin, y_spin, z_spin); // Rotate around the y-axis
+      modelMatrix.setRotate(currentAngle, x_spin, y_spin, z_spin); // Quay quanh trục OA với A(x_spin,y_spin, z_spin)
     }
-    // Calculate the view projection matrix
+    // Tính view projection matrix
     mvpMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
     mvpMatrix.lookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
     mvpMatrix.multiply(modelMatrix);
-    // Calculate the matrix to transform the normal based on the model matrix
-    normalMatrix.setInverseOf(modelMatrix);
-    normalMatrix.transpose();
+    // Tính m atraanj để biến đổi pháp tuyến theo ma trận mô hình
+    normalMatrix.setInverseOf(modelMatrix);   //Tính nghịch đảo cảu ma trân mô hình
+    normalMatrix.transpose();   //chuyển vị ma trận kết quả
     
-    // Pass the model matrix to u_ModelMatrix
+    // Truyền model matrix vào u_ModelMatrix
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 
-    // Pass the model view projection matrix to u_mvpMatrix
+    // Truyền model view projection matrix vào u_mvpMatrix
     gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
-      // Pass the transformation matrix for normals to u_NormalMatrix
+      // Truyền the transformation matrix for normals vào u_NormalMatrix
     gl.uniformMatrix4fv(u_NormalMatrix, false, normalMatrix.elements);
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Draw the cube
+    // Vẽ lại hình lập phương
     gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
     if(stop==false){
-      requestAnimationFrame(tick, canvas); // Request that the browser calls tick
+      requestAnimationFrame(tick, canvas); // Yêu cầu trình duyệt gọi lại hàm tick;
     }
     
   };
   tick();
   
-
-  
+  // Xử lý sự kiện khi checkbox tăt/bật thay đổi
   onf.onchange = function(){
     if(onf.checked==true){  
       if(onf.checked==true){  
       r_lcolor=0.0;
       g_lcolor=0.0; 
-      b_lcolor=0.0;
+      b_lcolor=0.0;   //ánh sáng màu đen
     }
-      tick();
+      tick();   //vẽ lại
     }
     if(onf.checked==false){
-      r_lcolor=r_light_color.value/255;
+      r_lcolor=r_light_color.value/255;   //cập nhật lại màu ánh sáng
       g_lcolor=g_light_color.value/255; 
       b_lcolor=b_light_color.value/255;
-      tick();
+      tick();   //vẽ lại
     }
   }
-  
+
+  // Xử lý sự kiện khi checkbox dừng/quay thay đổi
   st.onchange = function(){
     if(st.checked==true){  
       stop = true;
-      tick();
+      tick();   //vẽ lại
     }
     if(st.checked==false){
      stop = false;
-      tick();
+      tick();   //vẽ lại
     }
   }
+  // Xử lý sự kiện khi vị trí ánh sáng thay đổi
   x_light_location.onchange = function(){
-    gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
-    tick()
+    gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);  //cập nhật lại vị trí ánh sáng
+    tick()    //vẽ lại
   }
   y_light_location.onchange = function(){
     gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
@@ -254,9 +262,10 @@ function main() {
     gl.uniform3f(u_LightPosition, x_light_location.value, y_light_location.value, z_light_location.value);
     tick()
   }
+   // Xử lý sự kiện khi vị trí nhìn thay đổi
   x_lookat.onchange = function(){
-    g_eyeX=x_lookat.value
-    tick();
+    g_eyeX=x_lookat.value   //cập nhật lại vị trí nhìn
+    tick();   //vẽ lại
   }
   y_lookat.onchange = function(){
     g_eyeY=y_lookat.value
@@ -266,17 +275,21 @@ function main() {
     g_eyeZ=z_lookat.value
     tick();
   }
-
+  // Xử lý sự kiện khi trục quay thay đổi
   x_sp.onchange = function(){
-    x_spin = x_sp.value
+    x_spin = x_sp.value; //cập nhật lại trục quay
+    tick();   //vẽ lại
   }
 
   y_sp.onchange = function(){
-    y_spin = y_sp.value
+    y_spin = y_sp.value;
+    tick();
   }
   z_sp.onchange = function(){
-    z_spin = z_sp.value
+    z_spin = z_sp.value;
+    tick();
   }
+  // Xử lý sự kiện khi màu ánh sáng thay đổi
   function changeLightColor(){
     r_light_color_text.innerHTML = r_light_color.value
     g_light_color_text.innerHTML = g_light_color.value
@@ -292,7 +305,7 @@ function main() {
     }
     tick();
   }
-
+  // Xử lý sự kiện khi màu nền thay đổi
   function changeBackgroundColor(){
 
     r_background_color_text.innerHTML = r_background_color.value
@@ -305,13 +318,14 @@ function main() {
   
     tick();
   }
-
+  // Xử lý sự kiện khi màu hình lập phương thay đổi
   function changeObjectColor(){
     r_object_color_text.innerHTML = r_object_color.value
     g_object_color_text.innerHTML = g_object_color.value
     b_object_color_text.innerHTML = b_object_color.value
     initVertexBuffers(gl);
   }
+  // Xử lý sự kiện khi màu khuêch tán thay đổi
   function changeAmbientColor(){
     r_ambient_color_text.innerHTML = r_ambient_color.value
     g_ambient_color_text.innerHTML = g_ambient_color.value
@@ -321,7 +335,7 @@ function main() {
     b_acolor=b_ambient_color.value/255;
     tick();
   }
-
+  // Xử lý sự kiện khi màu ánh sáng thay đổi
   r_light_color.oninput = function(){
     changeLightColor()
   }
@@ -331,7 +345,7 @@ function main() {
   b_light_color.oninput = function(){
     changeLightColor()
   }
-
+  // Xử lý sự kiện khi màu nền thay đổi
   r_background_color.oninput = function(){
     changeBackgroundColor()
   }
@@ -341,6 +355,7 @@ function main() {
   b_background_color.oninput = function(){
     changeBackgroundColor()
   }
+   // Xử lý sự kiện khi màu hình lập phương thay đổi
   r_object_color.oninput = function(){
     changeObjectColor()
   }
@@ -350,7 +365,7 @@ function main() {
   b_object_color.oninput = function(){
     changeObjectColor()
   }
-
+   // Xử lý sự kiện khi màu khuêch tán thay đổi
   r_ambient_color.oninput = function(){
     changeAmbientColor();
   }
@@ -360,12 +375,13 @@ function main() {
   b_ambient_color.oninput = function(){
     changeAmbientColor();
   }
+   // Xử lý sự kiện khi tốc độ quay thay đổi
   v_spin.oninput = function(){
     ANGLE_STEP=v_spin.value
     tick();
   }
 }
-
+// Khởi tạo bộ đệm đối tượng
 function initVertexBuffers(gl) {
   // Create a cube
   //    v6----- v5
@@ -384,13 +400,13 @@ function initVertexBuffers(gl) {
     -2.0,-2.0,-2.0,   2.0,-2.0,-2.0,   2.0,-2.0, 2.0,  -2.0,-2.0, 2.0, // v7-v4-v3-v2 down
      2.0,-2.0,-2.0,  -2.0,-2.0,-2.0,  -2.0, 2.0,-2.0,   2.0, 2.0,-2.0  // v4-v7-v6-v5 back
   ]);
-
-    var colors = new Float32Array(72)
-    for(var i=0; i<72; i=i+3){
-      colors[i]=r_object_color.value/255;
-      colors[i+1]=g_object_color.value/255;
-      colors[i+2]=b_object_color.value/255;
-     }
+  // Ma trận màu của hình lập phuong
+  var colors = new Float32Array(72)
+  for(var i=0; i<72; i=i+3){
+    colors[i]=r_object_color.value/255;
+    colors[i+1]=g_object_color.value/255;
+    colors[i+2]=b_object_color.value/255;
+   }
 
   // Normal
   var normals = new Float32Array([
@@ -417,15 +433,16 @@ function initVertexBuffers(gl) {
   if (!initArrayBuffer(gl, 'a_Color', colors, 3)) return -1;
   if (!initArrayBuffer(gl, 'a_Normal', normals, 3)) return -1;
 
-  // Unbind the buffer object
+  // Gán bộ đệm đối tượng với một target
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-  // Write the indices to the buffer object
+  // 
   var indexBuffer = gl.createBuffer();
   if (!indexBuffer) {
     console.log('Failed to create the buffer object');
     return false;
   }
+  //Ghi các chỉ số vào bộ đệm đối tượng
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
@@ -454,6 +471,8 @@ function initArrayBuffer(gl, attribute, data, num) {
 
   return true;
 }
+
+
 var ANGLE_STEP = 30.0;
 // Last time that this function was called
 var g_last = Date.now();
